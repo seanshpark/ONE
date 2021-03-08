@@ -141,6 +141,17 @@ std::unique_ptr<luci::PGroups> produce_pgroups(const luci::Module *source,
       }
       // Set output of PGroup: node itself or multiple virtual outputs
       // TODO support multiple virtual outputs
+      assert(node->opcode() != luci::CircleOpcode::CUSTOM);
+      assert(node->opcode() != luci::CircleOpcode::IF);
+      assert(node->opcode() != luci::CircleOpcode::NON_MAX_SUPPRESSION_V4);
+      assert(node->opcode() != luci::CircleOpcode::NON_MAX_SUPPRESSION_V5);
+      assert(node->opcode() != luci::CircleOpcode::SPLIT);
+      assert(node->opcode() != luci::CircleOpcode::SPLIT_V);
+      assert(node->opcode() != luci::CircleOpcode::TOPK_V2);
+      assert(node->opcode() != luci::CircleOpcode::UNIQUE);
+      assert(node->opcode() != luci::CircleOpcode::UNPACK);
+      assert(node->opcode() != luci::CircleOpcode::WHILE);
+
       pgroup->outputs.push_back(node);
 
       pgroups->node2group[node] = group;

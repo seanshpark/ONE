@@ -257,7 +257,7 @@ public:
 
   // Virtual
   luci::CircleNode *visit(const luci::CircleCustomOut *) final;
-  // luci::CircleNode *visit(const luci::CircleIfOut *) final;
+  luci::CircleNode *visit(const luci::CircleIfOut *) final;
   // luci::CircleNode *visit(const luci::CircleInput *) final;
   luci::CircleNode *visit(const luci::CircleNonMaxSuppressionV4Out *) final;
   luci::CircleNode *visit(const luci::CircleNonMaxSuppressionV5Out *) final;
