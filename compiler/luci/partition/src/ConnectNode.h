@@ -92,7 +92,7 @@ public:
   void visit(const luci::CircleGatherNd *) final;
   void visit(const luci::CircleGreater *) final;
   void visit(const luci::CircleGreaterEqual *) final;
-  // void visit(const luci::CircleIf *) final;
+  void visit(const luci::CircleIf *) final;
   void visit(const luci::CircleL2Normalize *) final;
   void visit(const luci::CircleL2Pool2D *) final;
   void visit(const luci::CircleLeakyRelu *) final;
@@ -182,7 +182,7 @@ public:
 
   // Virtual
   void visit(const luci::CircleCustomOut *) final;
-  // void visit(const luci::CircleIfOut *) final;
+  void visit(const luci::CircleIfOut *) final;
   // void visit(const luci::CircleInput *) final;
   void visit(const luci::CircleNonMaxSuppressionV4Out *) final;
   void visit(const luci::CircleNonMaxSuppressionV5Out *) final;

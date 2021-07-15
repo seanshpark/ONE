@@ -1415,6 +1415,8 @@ bool CircleNodeSummaryBuilderBase::build(const loco::Node *node, locop::NodeSumm
   if (node->dialect() != luci::CircleDialect::get())
     return false;
 
+  auto cnode = loco::must_cast<const luci::CircleNode *>(node);
+
   auto ptr_to_str = [](const void *ptr) {
     std::stringstream ss;
     ss << ptr;
@@ -1427,6 +1429,7 @@ bool CircleNodeSummaryBuilderBase::build(const loco::Node *node, locop::NodeSumm
     if (summary(dynamic_cast<const CLASS *>(node), s))  \
     {                                                   \
       s.opname(circle_opname(node->opnum()));           \
+      s.comments().append("Name = " + cnode->name());   \
       s.comments().append("Mem = " + ptr_to_str(node)); \
       return true;                                      \
     }                                                   \

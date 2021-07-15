@@ -47,8 +47,8 @@ void If::configure()
   for (RuntimeGraph *graph : {_then_graph, _else_graph})
   {
     (void)graph;
-    LUCI_INTERPRETER_CHECK(graph->getInputTensors().size() == getInputTensors().size() - 1);
-    LUCI_INTERPRETER_CHECK(graph->getOutputTensors().size() == getOutputTensors().size());
+    // LUCI_INTERPRETER_CHECK(graph->getInputTensors().size() == getInputTensors().size() - 1);
+    // LUCI_INTERPRETER_CHECK(graph->getOutputTensors().size() == getOutputTensors().size());
   }
 }
 
