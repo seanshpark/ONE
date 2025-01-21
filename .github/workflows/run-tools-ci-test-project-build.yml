@@ -1,0 +1,61 @@
+name: Run tools/ci-test-project Ubuntu Build
+
+on:
+  #push:
+  #  branches:
+  #    - master
+  #  paths:
+  #    - '.github/workflows/ci-test-project-subgraph-build.yml'
+  #    - 'compiler/onnx-subgraph/**'
+  #pull_request:
+  #  branches:
+  #    - master
+  #  paths:
+  #    - '.github/workflows/run-tools-onnx-subgraph-build.yml'
+  #    - 'compiler/onnx-subgraph/**'
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  onecc-test:
+    #if: github.repository_owner == 'Samsung'
+    strategy:
+      matrix:
+        type: [ Debug, Release ]
+        ubuntu_code: [ focal, jammy ]
+        include:
+          - ubuntu_code: focal
+            ubuntu_ver: 20.04
+          - ubuntu_code: jammy
+            ubuntu_ver: 22.04
+    runs-on: ubuntu-${{ matrix.ubuntu_ver }}
+    env:
+      NNCC_WORKSPACE : build
+      NNCC_INSTALL_PREFIX : install
+    name: tools_onnx-subgraph U${{ matrix.ubuntu_ver }} ${{ matrix.type }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtest-dev
+          python3 -m pip install --upgrade pip
+          python3 -m pip install onnx==1.16.0 onnxruntime==1.18.1 onnxsim==0.4.36 torch==2.3.1
+
+      - name: Build
+        run: |
+          cd ./tools/ci-test-project
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=${{ matrix.type }} ..
+          make
+
+      - name: Test
+        run: |
+          cd ./tools/ci-test-project/build
+          make test
