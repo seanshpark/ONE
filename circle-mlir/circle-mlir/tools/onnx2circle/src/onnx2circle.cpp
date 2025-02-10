@@ -40,6 +40,11 @@
 #include <src/Builder/FrontendDialectTransformer.hpp>
 #include <src/Compiler/CompilerOptions.hpp>
 
+// CIRCLE-MLIR
+#include <circle-mlir/dialect/CircleDialect.h>
+#include <circle-mlir/pass/CirclePass.h>
+#include <circle-mlir/export/CircleExport.h>
+
 #include <iostream>
 #include <string>
 
@@ -60,6 +65,7 @@ void registerDialects(mlir::MLIRContext &context)
   context.getOrLoadDialect<mlir::func::FuncDialect>();
 
   context.getOrLoadDialect<mlir::ONNXDialect>();
+  context.getOrLoadDialect<mlir::Circle::CIRDialect>();
 }
 
 int loadONNX(const std::string &onnx_path, mlir::MLIRContext &context,
@@ -121,6 +127,7 @@ int loadONNX(const std::string &onnx_path, mlir::MLIRContext &context,
 int convertToCircle(const O2Cparam &param)
 {
   const std::string &sourcefile = param.sourcefile;
+  const std::string &targetfile = param.targetfile;
 
   mlir::MLIRContext context;
   registerDialects(context);
@@ -130,7 +137,60 @@ int convertToCircle(const O2Cparam &param)
   if (result != 0)
     return result;
 
-  // TODO add processing
+  result = mlir::Circle::preprocessONNX(context, module);
+  if (result != 0)
+    return result;
+
+  result = mlir::Circle::shapeInferenceONNX(context, module);
+  if (result != 0)
+    return result;
+
+  result = mlir::Circle::convertToCircle(context, module);
+  if (result != 0)
+    return result;
+
+  result = mlir::Circle::postProcessCircle(context, module);
+  if (result != 0)
+    return result;
+
+  if (param.check_shapeinf)
+  {
+    result = mlir::Circle::shapeValidateCircle(context, module);
+    if (result != 0)
+      return result;
+  }
+  if (param.check_dynshapeinf)
+  {
+    // output should have any static shape from dynamic input
+    result = mlir::Circle::dynaShapeValidateCircle(context, module);
+    if (result != 0)
+      return result;
+  }
+
+  std::string error_msg;
+  if (param.save_ops)
+  {
+    std::string output_filename = targetfile + ".ops";
+    auto output = mlir::openOutputFile(output_filename, &error_msg);
+    if (!error_msg.empty())
+    {
+      llvm::errs() << "Failed: " << error_msg << "\n";
+      return -1;
+    }
+    result = mlir::Circle::dumpCircleOps(output->os(), context, module);
+    if (result == 0)
+      output->keep();
+
+    return result;
+  }
+
+  std::string serialized_flatbuffer;
+  if (!mlir::Circle::MlirToFlatBufferTranslateFunction(module.get(), &serialized_flatbuffer))
+    return -1;
+  auto output = mlir::openOutputFile(targetfile, &error_msg);
+  // TODO error handle
+  output->os() << serialized_flatbuffer;
+  output->keep();
 
   return 0;
 }
