@@ -116,6 +116,61 @@ $ NNCC_WORKSPACE=build/release ./nncc build
 ```
 will build release version in `build/release` folder.
 
+## Local install and command line tests
+
+Local install test is to make an local installation in `build/install` path
+and check the build artifacts and run compiler command line test with `onecc`
+and others.
+
+### How to make local installation
+```
+NNAS_BUILD_PREFIX=build/setup \
+BUILD_TYPE=Release \
+./nnas create-package --preset 20230907 --prefix build/install
+```
+This will configure and build necessary modules and install files in
+`build/install` path.
+
+### Build and install onnx2circle
+
+`one-import-onnx` tool now uses `onnx2circle` tool from `circle-mlir`.
+
+Please read [README.md](../circle-mlir/README.md) for details.
+
+As `circle-mlir` uses lots of storage(about 150~200GB) and time,
+developers may not want to build from source.
+For this case, we can install from Debian package from `launchpad.net`
+```
+sudo -E add-apt-repository ppa:circletools/nightly
+sudo apt update
+sudo apt install onnx2circle
+```
+- this will install `onnx2circle` tool to `/usr/share/circletools` folder
+- you can make a copy or let `one-import-onnx` use this if `onnx2circle` is not
+present in the same folder
+
+### Command line tests
+
+To run command line tests, python virtual envirnment is necessary with
+test models.
+
+Prepare python virtual environment:
+```
+cd build/install/bin
+bash ./one-prepare-venv
+```
+
+Download test models:
+```
+cd ../test
+bash ./prepare_test_materials.sh
+```
+
+Run command line tests:
+```
+bash ./runtestall.sh
+```
+
 ## Build for Windows
 
 To build for Windows, we use MinGW(Minimalist GNU for Windows). [Here](https://github.com/git-for-windows/build-extra/releases) you can download a tool that includes it.

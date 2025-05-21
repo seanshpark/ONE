@@ -288,8 +288,22 @@ def _check_ext():
     return None
 
 
+def _check_onnx2circle():
+    # check if onnx2circle exist
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    o2c_path = os.path.join(dir_path, 'onnx2circle')
+    if not os.path.isfile(o2c_path):
+        o2c_path = '/usr/share/circletools/bin/onnx2circle'
+        if not os.path.isfile(o2c_path):
+            print("one-import-onnx: onnx2circle converter not found")
+            sys.exit(1)
+    return o2c_path
+
+
 def _convert(args):
     _apply_verbosity(args.verbose)
+
+    onnx2cicle_path = _check_onnx2circle()
 
     # get file path to log
     dir_path = os.path.dirname(os.path.realpath(__file__))
